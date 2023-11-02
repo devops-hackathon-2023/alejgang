@@ -1,7 +1,9 @@
-<script>
+<script lang="ts">
+  import { base } from '$app/paths';
   import { getUnits } from '$lib';
-  import { console, taskEither } from 'fp-ts';
-  import { pipe } from 'fp-ts/lib/function';
+  import { onMount } from 'svelte';
+
+  onMount(() => console.log(base));
 </script>
 
 <h1>Welcome to SvelteKit</h1>
