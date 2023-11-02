@@ -1,7 +1,9 @@
 <script>
-  import { example } from '$lib';
+  import { getUnits } from '$lib';
+  import { console, taskEither } from 'fp-ts';
+  import { pipe } from 'fp-ts/lib/function';
 </script>
 
 <h1>Welcome to SvelteKit</h1>
 <p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
-<button on:click={example}>Run example (check networks tab)</button>
+<button on:click={getUnits}>Run example (check networks tab)</button>
