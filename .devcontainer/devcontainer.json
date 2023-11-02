@@ -1,0 +1,55 @@
+{
+  "name": "Node.js",
+  "image": "mcr.microsoft.com/devcontainers/base:bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    "ghcr.io/devcontainers/features/node:1": {}
+  },
+  "forwardPorts": [3000],
+  "onCreateCommand": {
+    "frontend": "pnpm install --frozen-lockfile"
+  },
+  "postStartCommand": {
+    "frontend": "nohup bash -c 'while [ 0 ]; do pnpm run dev >> frontend.out 2>&1 || true; sleep 1; done &'"
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "remote.restoreForwardedPorts": true,
+        "typescript.tsdk": "node_modules/typescript/lib",
+        "typescript.preferences.importModuleSpecifier": "non-relative",
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "editor.codeActionsOnSave": {
+          "source.fixAll": true,
+          "source.organizeImports": false
+        },
+        "[json]": {
+          "editor.defaultFormatter": "biomejs.biome"
+        },
+        "[html]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[svelte]": {
+          "editor.defaultFormatter": "svelte.svelte-vscode"
+        },
+        "[typescript]": {
+          "editor.defaultFormatter": "biomejs.biome"
+        },
+        "[javascript]": {
+          "editor.defaultFormatter": "biomejs.biome"
+        }
+      },
+      "extensions": [
+        "svelte.svelte-vscode",
+        "biomejs.biome",
+        "esbenp.prettier-vscode",
+        "yoavbls.pretty-ts-errors",
+        "formulahendry.auto-complete-tag",
+        "adpyke.codesnap",
+        "seatonjiang.gitmoji-vscode",
+        "Box-Of-Hats.bemhelper",
+        "mhutchie.git-graph"
+      ]
+    }
+  }
+}
