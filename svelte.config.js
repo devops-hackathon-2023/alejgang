@@ -5,7 +5,9 @@ import { vitePreprocess } from '@sveltejs/kit/vite';
 const config = {
   preprocess: vitePreprocess(),
   kit: {
-    adapter: adapter(),
+    adapter: adapter({
+      fallback: '404.html',
+    }),
     paths: {
       base: process.env.APP_BASE ?? '',
     },
