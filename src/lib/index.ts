@@ -1,6 +1,13 @@
 import { console, either, option, taskEither } from 'fp-ts';
 import { pipe } from 'fp-ts/lib/function';
-import { DeploymentUnitsService, DeploymentsService, OpenAPI, StartDeploymentRequest } from './client';
+import {
+  AppModulesService,
+  DeploymentUnitsService,
+  DeploymentsService,
+  OpenAPI,
+  SaSesService,
+  StartDeploymentRequest,
+} from './client';
 
 OpenAPI.USERNAME = 'dopo';
 OpenAPI.PASSWORD = 'DevOps2023';
@@ -35,5 +42,24 @@ export const getUnits = pipe(
       option.some('2023-11-01T20:52:15'),
     ),
   taskEither.map((r) => r.page),
+  taskEither.tapIO((data) => console.log(data)),
+);
+
+export const getSASes = pipe(
+  () => SaSesService.list(option.none),
+  taskEither.map(($) => $.page),
+  taskEither.tapIO((data) => console.log(data)),
+);
+
+export const getAppModulesBySas = (sasId: string) =>
+  pipe(
+    () => AppModulesService.list1(sasId, option.none),
+    taskEither.map(($) => $.page),
+    taskEither.tapIO((data) => console.log(data)),
+  );
+
+export const ahfoieahjfeio = pipe(
+  () => AppModulesService.list1('Dd', option.none),
+  taskEither.map(($) => $.page),
   taskEither.tapIO((data) => console.log(data)),
 );

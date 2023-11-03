@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { getUnits } from '$lib';
+  import Page from '../components/elements/page.svelte';
 </script>
 
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
-<button on:click={getUnits}>Run example (check networks tab)</button>
+<Page>
+  <h1 class="text-3xl font-bold">Ahoj Kubo</h1>
+</Page>
