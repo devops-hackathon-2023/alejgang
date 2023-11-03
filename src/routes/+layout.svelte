@@ -21,7 +21,7 @@
       {#if either.isLeft(sases)}
         very error help
       {:else}
-        <Select bind:value={sasIdInput} options={selectOptions(sases.right.toLog())} />
+        <Select bind:value={sasIdInput} options={selectOptions(sases.right)} />
       {/if}
     {/await}
 
@@ -32,7 +32,7 @@
         {#if either.isLeft(appModules)}
           very error help
         {:else}
-          <Select options={selectOptions(appModules.right.toLog())} />
+          <Select options={selectOptions(appModules.right)} />
         {/if}
       {/await}
     {/if}
