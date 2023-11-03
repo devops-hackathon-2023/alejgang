@@ -12,8 +12,8 @@ devDependencies:
     specifier: ^0.1.1
     version: 0.1.1(svelte@4.2.2)
   '@majkit/openapi':
-    specifier: ^0.25.5
-    version: 0.25.5
+    specifier: ^0.26.1
+    version: 0.26.1
   '@sveltejs/adapter-static':
     specifier: ^2.0.3
     version: 2.0.3(@sveltejs/kit@1.27.2)
@@ -383,8 +383,8 @@ packages:
     resolution: {integrity: sha512-4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==}
     dev: true
 
-  /@majkit/openapi@0.25.5:
-    resolution: {integrity: sha512-bQMy4A6PVKsH3W2HTshvVd3QrQGscR2cTjVCtJnTaGQsWkFTIcY7H3MSOvxfxXEzQ30AR2DXKy0xibJ/kG6nKg==}
+  /@majkit/openapi@0.26.1:
+    resolution: {integrity: sha512-+qKi1ralwRjWHlRE/Q9Aw+1cz3gGPPKLeUFqqwVqPORMqIver8bn6dYG9h/uXkyXOywGBT9QKKErYi3w8QJqfg==}
     hasBin: true
     dependencies:
       camelcase: 6.3.0
