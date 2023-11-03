@@ -7,12 +7,14 @@ OpenAPI.PASSWORD = 'DevOps2023';
 
 export const example = async () => {
   const deployment = await DeploymentsService.start({
-    version: '1.0.0',
-    changeTicketId: '1234',
-    deploymentUnitName: 'dopo-be',
-    deployer: 'Test',
-    environment: StartDeploymentRequest.environment.DEV,
-    platform: StartDeploymentRequest.platform.AZURE,
+    requestBody: {
+      version: '1.0.0',
+      changeTicketId: '1234',
+      deploymentUnitName: 'dopo-be',
+      deployer: 'Test',
+      environment: StartDeploymentRequest.environment.DEV,
+      platform: StartDeploymentRequest.platform.AZURE,
+    },
   });
   if (either.isLeft(deployment)) {
     console.error(deployment.left);
@@ -23,17 +25,10 @@ export const example = async () => {
 
 export const getUnits = pipe(
   () =>
-    DeploymentUnitsService.list4(
-      option.none,
-      undefined,
-      undefined,
-      undefined,
-      option.none,
-      option.none,
-      option.none,
-      option.some('2023-09-01T20:52:14'),
-      option.some('2023-11-01T20:52:15'),
-    ),
+    DeploymentUnitsService.list4({
+      createdAtGte: option.some('2023-09-01T20:52:14'),
+      createdAtLte: option.some('2023-11-01T20:52:15'),
+    }),
   taskEither.map((r) => r.page),
   taskEither.tapIO((data) => console.log(data)),
 );
