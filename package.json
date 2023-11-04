@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.3.3",
-    "@greenpanda/svelte-layout": "^0.1.1",
+    "@greenpanda/svelte-layout": "^0.2.1",
     "@majkit/openapi": "^0.26.2",
     "@sveltejs/adapter-static": "^2.0.3",
     "@sveltejs/kit": "^1.20.4",
