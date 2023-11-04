@@ -10,12 +10,13 @@
 
   export let value: [string, string] | null = null;
   export let options: [string, string][] = [];
+  export let placeholder = 'Select...';
 </script>
 
 <Listbox bind:value let:open class="relative">
   <ListboxButton
     class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-black shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-csasBlue-400 sm:text-sm sm:leading-6"
-    >{value ? humanize(value[1]) : 'Select SAS...'}</ListboxButton
+    >{value ? humanize(value[1]) : placeholder}</ListboxButton
   >
   <Transition
     show={open}

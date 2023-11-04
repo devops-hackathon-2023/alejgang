@@ -21,6 +21,9 @@ export default {
       fontFamily: {
         sans: ['"IBM Plex Sans"', 'sans-serif'],
       },
+      gridTemplateColumns: {
+        main: 'min(40ch, 280px) auto',
+      },
     },
   },
   plugins: [],

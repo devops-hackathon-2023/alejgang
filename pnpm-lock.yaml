@@ -9,11 +9,11 @@ devDependencies:
     specifier: ^1.3.3
     version: 1.3.3
   '@greenpanda/svelte-layout':
-    specifier: ^0.1.1
-    version: 0.1.1(svelte@4.2.2)
+    specifier: ^0.2.1
+    version: 0.2.1(svelte@4.2.2)
   '@majkit/openapi':
-    specifier: ^0.26.1
-    version: 0.26.1
+    specifier: ^0.26.2
+    version: 0.26.2
   '@rgossiaux/svelte-headlessui':
     specifier: ^2.0.0
     version: 2.0.0(svelte@4.2.2)
@@ -361,10 +361,10 @@ packages:
     engines: {node: '>=14'}
     dev: true
 
-  /@greenpanda/svelte-layout@0.1.1(svelte@4.2.2):
-    resolution: {integrity: sha512-PGkf9MVnuKdR8OOBvt3Nx+w5e0ZuMiGDzw7xkJa5qyOIKwKfV4Vz48Hu5huH8kTutldIxjGaUSVg+a300jjDpQ==}
+  /@greenpanda/svelte-layout@0.2.1(svelte@4.2.2):
+    resolution: {integrity: sha512-0Ws7CUOpJAfPFi8gUSvt7QfOLzd3QwHtWBIxbI0GinPPe2v+n3weUzZBhruiDK6lA3qHsQtZS9QnWvQ4EOCPxQ==}
     peerDependencies:
-      svelte: ^3.54.0
+      svelte: ^3.54.0 || ^4.0.0-next.0
     dependencies:
       svelte: 4.2.2
     dev: true
@@ -403,8 +403,8 @@ packages:
     resolution: {integrity: sha512-4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==}
     dev: true
 
-  /@majkit/openapi@0.26.1:
-    resolution: {integrity: sha512-+qKi1ralwRjWHlRE/Q9Aw+1cz3gGPPKLeUFqqwVqPORMqIver8bn6dYG9h/uXkyXOywGBT9QKKErYi3w8QJqfg==}
+  /@majkit/openapi@0.26.2:
+    resolution: {integrity: sha512-KwC4Z41JcdNcb1sRtNca1KtRyLtfoyD5R1L4Ilsxpndj/+X0IQOcBBGMs+fPC+ziVoEVnI2y6kz6s1YjYzQJeA==}
     hasBin: true
     dependencies:
       camelcase: 6.3.0
