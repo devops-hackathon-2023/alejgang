@@ -8,6 +8,12 @@ const config = {
     adapter: adapter({
       fallback: '404.html',
     }),
+    alias: {
+      $components: './src/components',
+      $types: './src/types',
+      $lib: './src/lib',
+      $src: './src',
+    },
     paths: {
       base: process.env.APP_BASE ?? '',
     },

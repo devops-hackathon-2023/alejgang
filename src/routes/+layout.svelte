@@ -1,4 +1,5 @@
 <script lang="ts">
+  import '$src/styles/global.scss';
   import '../app.css';
 
   import { getAppModulesBySas, getSASes } from '$lib';
