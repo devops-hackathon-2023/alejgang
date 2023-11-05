@@ -40,6 +40,9 @@
         },
         "[javascript]": {
           "editor.defaultFormatter": "biomejs.biome"
+        },
+        "tailwindCSS.includeLanguages": {
+          "svelte": "html"
         }
       },
       "extensions": [
@@ -51,7 +54,8 @@
         "adpyke.codesnap",
         "seatonjiang.gitmoji-vscode",
         "Box-Of-Hats.bemhelper",
-        "mhutchie.git-graph"
+        "mhutchie.git-graph",
+        "bradlc.vscode-tailwindcss"
       ]
     }
   }
