@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        csasBlue: {
+        csas: {
           50: '#eff7ff',
           100: '#dbecfe',
           200: '#bedeff',

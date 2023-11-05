@@ -15,7 +15,7 @@
 
 <Listbox bind:value let:open class="relative">
   <ListboxButton
-    class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-black shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-csasBlue-400 sm:text-sm sm:leading-6"
+    class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-black shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-csas-400 sm:text-sm sm:leading-6"
     >{value ? humanize(value[1]) : placeholder}</ListboxButton
   >
   <Transition
@@ -32,7 +32,7 @@
           value={option}
           class={({ active }) =>
             `${
-              active ? 'bg-csasBlue-600 text-white' : 'text-black'
+              active ? 'bg-csas-600 text-white' : 'text-black'
             } relative cursor-default select-none py-2 pl-3 pr-9`}
         >
           {humanize(option[1])}
