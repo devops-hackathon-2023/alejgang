@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getUnits, getUnitsByModuleId } from '$lib';
+  import { getUnitsByModuleId } from '$lib';
   import type { AppModuleResponse, SasResponse } from '$lib/client';
   import { either, option } from 'fp-ts';
   import { get } from 'svelte/store';
@@ -33,13 +33,16 @@
       }
     });
   };
+
+  const getUnits = getUnitsByModuleId(
+    option.map<AppModuleResponse, string>(($) => $.id)(selectedModule)
+  );
 </script>
 
 <h1>Welcome to SvelteKit</h1>
 <p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
-<button on:click={getUnits}>Run example (check networks tab)</button>
 
-{#await getUnitsByModuleId(option.map(($) => $.id)(selectedModule))()}
+{#await getUnits()}
   Loading...
 {:then units}
   {#if either.isLeft(units)}
