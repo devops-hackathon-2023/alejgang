@@ -8,9 +8,19 @@
     Transition
   } from '@rgossiaux/svelte-headlessui';
 
+  import { createEventDispatcher } from 'svelte';
+
+  const dispatch = createEventDispatcher();
+
   export let value: [string, string] | null = null;
   export let options: [string, string][] = [];
   export let placeholder = 'Select...';
+
+  $: if (value) {
+    dispatch('change', {
+      id: value[0]
+    });
+  }
 </script>
 
 <Listbox bind:value let:open class="relative">
