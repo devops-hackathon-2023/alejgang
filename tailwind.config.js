@@ -17,9 +17,14 @@ export default {
           900: '#1d408b',
           950: '#172854',
         },
+        status: {
+          fail: '#e72222',
+          success: '#028661',
+        },
       },
       fontFamily: {
         sans: ['"IBM Plex Sans"', 'sans-serif'],
+        mono: ['"IBM Plex Mono"', 'monospace'],
       },
       gridTemplateColumns: {
         main: 'min(40ch, 280px) auto',
