@@ -8,6 +8,7 @@
   import { classNames, humanize } from '$lib/string';
   import { selectOptions } from '$lib/util';
   import { either, option } from 'fp-ts';
+  import { onMount } from 'svelte';
   import Loader from '../components/elements/Loader.svelte';
   import Select from '../components/elements/Select.svelte';
   import Sidebar from '../components/layout/Sidebar.svelte';
@@ -19,7 +20,7 @@
   $: sasId = sasIdInput === null ? option.none : option.some(sasIdInput);
 
   selectedSas.subscribe((sas) => {
-    if (option.isSome(sas) && sasIdInput !== null && sas.value.id !== sasIdInput[0]) {
+    if (option.isSome(sas) && sas.value.id !== sasIdInput?.at(0)) {
       sasIdInput = [sas.value.id, sas.value.name];
     }
   });
@@ -41,6 +42,18 @@
   let favs: [SasResponse, AppModuleResponse][] = [];
   favorites.subscribe(($) => {
     favs = [...$];
+  });
+
+  onMount(() => {
+    const storageFavorites = localStorage.getItem('favorites');
+
+    if (storageFavorites) {
+      const favoritesJson = JSON.parse(storageFavorites);
+
+      console.log('favs', favoritesJson);
+
+      favorites.set(favoritesJson);
+    }
   });
 </script>
 
@@ -104,7 +117,11 @@
               <button
                 on:click={() => {
                   selectedSas.set(option.some(sas));
-                  selectedAppModule.set(option.some(appModule));
+
+                  // fuj, can be avoided by storing sasId and appModuleId in the same store (tuple), because there is never a sas selected without an appModule
+                  setTimeout(() => {
+                    selectedAppModule.set(option.some(appModule));
+                  }, 300);
                 }}
                 class={classNames(
                   optionEqString.equals(option.some(appModule.id), selectedAppModuleId)

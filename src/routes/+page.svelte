@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getUnits, getUnitsByModuleId } from '$lib';
-  import type { AppModuleResponse } from '$lib/client';
+  import type { AppModuleResponse, SasResponse } from '$lib/client';
   import { either, option } from 'fp-ts';
   import { get } from 'svelte/store';
   import { favorites, selectedAppModule, selectedSas } from '../stores';
@@ -17,7 +17,14 @@
 
       if (option.isSome(sas) && option.isSome(module)) {
         if (!favs.some(([s, m]) => s.id === sas.value.id && m.id === module.value.id)) {
-          return [...favs, [sas.value, module.value]];
+          const newFavorites: [SasResponse, AppModuleResponse][] = [
+            ...favs,
+            [sas.value, module.value]
+          ];
+
+          localStorage.setItem('favorites', JSON.stringify(newFavorites));
+
+          return newFavorites;
         } else {
           return favs;
         }
