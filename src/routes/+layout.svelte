@@ -9,6 +9,7 @@
   import { selectOptions } from '$lib/util';
   import { either, option } from 'fp-ts';
   import { onMount } from 'svelte';
+  import { get } from 'svelte/store';
   import Loader from '../components/elements/Loader.svelte';
   import Select from '../components/elements/Select.svelte';
   import Sidebar from '../components/layout/Sidebar.svelte';
@@ -37,6 +38,12 @@
   let selectedAppModuleId: option.Option<string> = option.none;
   selectedAppModule.subscribe((module) => {
     selectedAppModuleId = option.map<AppModuleResponse, string>(($) => $.id)(module);
+
+    const sas = get(selectedSas);
+
+    if (option.isSome(sas) && option.isSome(module)) {
+      localStorage.setItem('last', JSON.stringify([sas.value, module.value]));
+    }
   });
 
   let favs: [SasResponse, AppModuleResponse][] = [];
@@ -50,9 +57,20 @@
     if (storageFavorites) {
       const favoritesJson = JSON.parse(storageFavorites);
 
-      console.log('favs', favoritesJson);
-
       favorites.set(favoritesJson);
+    }
+
+    const storageLast = localStorage.getItem('last');
+
+    if (storageLast) {
+      const [sas, appModule] = JSON.parse(storageLast);
+
+      selectedSas.set(option.some(sas));
+
+      // fuj, can be avoided by storing sasId and appModuleId in the same store (tuple), because there is never a sas selected without an appModule
+      setTimeout(() => {
+        selectedAppModule.set(option.some(appModule));
+      }, 500);
     }
   });
 </script>
