@@ -53,9 +53,11 @@
         "formulahendry.auto-complete-tag",
         "adpyke.codesnap",
         "seatonjiang.gitmoji-vscode",
-        "Box-Of-Hats.bemhelper",
         "mhutchie.git-graph",
-        "bradlc.vscode-tailwindcss"
+        "bradlc.vscode-tailwindcss",
+        "waderyan.gitblame",
+        "GitHub.copilot",
+        "GitHub.copilot-chat"
       ]
     }
   }

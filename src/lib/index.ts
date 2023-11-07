@@ -1,4 +1,5 @@
 import { dateToStr, subYears } from '$lib/date';
+import { optionEqString } from '$lib/eq';
 import { console, date, either, io, option, taskEither } from 'fp-ts';
 import { groupBy } from 'fp-ts/lib/NonEmptyArray';
 import type { Option } from 'fp-ts/lib/Option';
@@ -45,7 +46,7 @@ export const getUnits = pipe(
   taskEither.tapIO((data) => console.log(data)),
 );
 
-export const getUnitsByModuleId = (appModuleId: string | null) =>
+export const getUnitsByModuleId = (appModuleId: option.Option<string>) =>
   pipe(
     () =>
       DeploymentUnitsService.list4({
@@ -54,7 +55,7 @@ export const getUnitsByModuleId = (appModuleId: string | null) =>
       }),
     taskEither.map((r) => r.page),
     taskEither.tapIO((data) => console.log(data)),
-    taskEither.map(($) => $.filter((unit) => unit.appModuleId === appModuleId)),
+    taskEither.map(($) => $.filter((unit) => optionEqString.equals(option.some(unit.appModuleId), appModuleId))),
   );
 
 export const getSASes = pipe(
