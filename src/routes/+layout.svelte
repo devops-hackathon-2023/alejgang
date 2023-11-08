@@ -2,49 +2,34 @@
   import '$src/styles/global.scss';
   import '../app.css';
 
+  import { goto } from '$app/navigation';
+  import { base } from '$app/paths';
+  import { page } from '$app/stores';
   import { getAppModulesBySas, getSASes } from '$lib';
   import type { AppModuleResponse, SasResponse } from '$lib/client';
   import { optionEqString } from '$lib/eq';
   import { classNames, humanize } from '$lib/string';
   import { selectOptions } from '$lib/util';
+  import { favorites } from '$src/stores';
   import { either, option } from 'fp-ts';
   import { onMount } from 'svelte';
-  import { get } from 'svelte/store';
   import Loader from '../components/elements/Loader.svelte';
   import Select from '../components/elements/Select.svelte';
   import Sidebar from '../components/layout/Sidebar.svelte';
-  import { favorites, selectedAppModule, selectedSas } from '../stores';
 
   let appModules: AppModuleResponse[] = [];
 
   let sasIdInput: [string, string] | null = null;
   $: sasId = sasIdInput === null ? option.none : option.some(sasIdInput);
 
-  selectedSas.subscribe((sas) => {
-    if (option.isSome(sas) && sas.value.id !== sasIdInput?.at(0)) {
-      sasIdInput = [sas.value.id, sas.value.name];
-    }
-  });
-
   $: if (option.isSome(sasId)) {
     getAppModulesBySas(sasId.value[0])().then((resp) => {
       if (either.isRight(resp)) {
         appModules = [...resp.right];
-        selectedAppModule.set(option.some(resp.right[0]));
+        // selectedAppModule.set(option.some(resp.right[0]));
       }
     });
   }
-
-  let selectedAppModuleId: option.Option<string> = option.none;
-  selectedAppModule.subscribe((module) => {
-    selectedAppModuleId = option.map<AppModuleResponse, string>(($) => $.id)(module);
-
-    const sas = get(selectedSas);
-
-    if (option.isSome(sas) && option.isSome(module)) {
-      localStorage.setItem('last', JSON.stringify([sas.value, module.value]));
-    }
-  });
 
   let favs: [SasResponse, AppModuleResponse][] = [];
   favorites.subscribe(($) => {
@@ -52,6 +37,14 @@
   });
 
   onMount(() => {
+    const sas = $page.data['sas'] as SasResponse | undefined;
+
+    if (sas) {
+      sasIdInput = [sas.id, sas.name];
+    }
+  });
+
+  onMount(async () => {
     const storageFavorites = localStorage.getItem('favorites');
 
     if (storageFavorites) {
@@ -63,14 +56,10 @@
     const storageLast = localStorage.getItem('last');
 
     if (storageLast) {
-      const [sas, appModule] = JSON.parse(storageLast);
+      const [, appModule] = JSON.parse(storageLast);
 
-      selectedSas.set(option.some(sas));
-
-      // fuj, can be avoided by storing sasId and appModuleId in the same store (tuple), because there is never a sas selected without an appModule
-      setTimeout(() => {
-        selectedAppModule.set(option.some(appModule));
-      }, 500);
+      console.log('GOTO IN storageLast');
+      await goto(`/${appModule.id}`);
     }
   });
 </script>
@@ -86,10 +75,19 @@
         <section class="-mx-2">
           <Select
             bind:value={sasIdInput}
-            on:change={(event) => {
-              selectedSas.set(
-                option.fromNullable(sases.right.find(($) => $.id === event.detail.id) ?? null)
+            on:change={async (event) => {
+              const modules = await getAppModulesBySas(event.detail.id)();
+
+              if (either.isLeft(modules) || modules.right.length === 0) {
+                return;
+              }
+
+              console.log('GOTO IN select');
+              localStorage.setItem(
+                'last',
+                JSON.stringify([$page.data['sas'], $page.data['appModule']])
               );
+              await goto(`/${modules.right[0].id}`);
             }}
             options={selectOptions(sases.right)}
             placeholder="Select SAS..."
@@ -105,18 +103,23 @@
           {#each appModules as module (module.id)}
             <li>
               <a
-                href="#"
+                href="{base}/{module.id}"
                 class={classNames(
-                  optionEqString.equals(option.some(module.id), selectedAppModuleId)
+                  optionEqString.equals(
+                    option.some(module.id),
+                    option.fromNullable($page.params['appModuleId'])
+                  )
                     ? 'bg-csas-700 text-white'
                     : 'text-csas-50 hover:text-white hover:bg-csas-700',
                   'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-all'
                 )}
                 on:click={() => {
-                  if (!optionEqString.equals(option.some(module.id), selectedAppModuleId)) {
-                    console.log('selection!!!');
-                    selectedAppModule.set(option.some(module));
-                  }
+                  setTimeout(() => {
+                    localStorage.setItem(
+                      'last',
+                      JSON.stringify([$page.data['sas'], $page.data['appModule']])
+                    );
+                  }, 1000);
                 }}
               >
                 <span class="truncate">{humanize(module.name)}</span>
@@ -133,16 +136,22 @@
           {#each favs as [sas, appModule]}
             <li>
               <button
-                on:click={() => {
-                  selectedSas.set(option.some(sas));
+                on:click={async () => {
+                  console.log('GOTO IN click on fav');
+                  await goto(`/${appModule.id}`);
 
-                  // fuj, can be avoided by storing sasId and appModuleId in the same store (tuple), because there is never a sas selected without an appModule
                   setTimeout(() => {
-                    selectedAppModule.set(option.some(appModule));
-                  }, 300);
+                    localStorage.setItem(
+                      'last',
+                      JSON.stringify([$page.data['sas'], $page.data['appModule']])
+                    );
+                  }, 1000);
                 }}
                 class={classNames(
-                  optionEqString.equals(option.some(appModule.id), selectedAppModuleId)
+                  optionEqString.equals(
+                    option.some(appModule.id),
+                    option.fromNullable($page.params['appModuleId'])
+                  )
                     ? 'bg-csas-700 text-white'
                     : 'text-csas-50 hover:text-white hover:bg-csas-700',
                   'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-all w-full'

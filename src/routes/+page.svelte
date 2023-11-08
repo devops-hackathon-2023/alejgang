@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
   import Copy from '$components/elements/Copy.svelte';
   import DeploymentUnitCard from '$components/elements/DeploymentUnitCard.svelte';
   import Select from '$components/elements/Select.svelte';
@@ -221,4 +221,6 @@
       </div>
     {/if}
   {/await}
-{/if}
+{/if} -->
+
+<p>ahojda</p>

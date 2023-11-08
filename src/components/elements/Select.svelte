@@ -16,11 +16,11 @@
   export let options: [string, string][] = [];
   export let placeholder = 'Select...';
 
-  $: if (value) {
-    dispatch('change', {
-      id: value[0]
-    });
-  }
+  // $: if (value) {
+  //   dispatch('change', {
+  //     id: value[0]
+  //   });
+  // }
 </script>
 
 <Listbox bind:value let:open class="relative">
@@ -44,6 +44,7 @@
             `${
               active ? 'bg-csas-600 text-white' : 'text-black'
             } relative cursor-default select-none py-2 pl-3 pr-9`}
+          on:click={() => dispatch('change', { id: option[0] })}
         >
           {humanize(option[1])}
         </ListboxOption>

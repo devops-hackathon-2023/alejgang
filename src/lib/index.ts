@@ -73,6 +73,8 @@ export const getAppModulesBySas = (sasId: string) =>
 
 export const getAppModuleById = (appModuleId: string) => pipe(() => AppModulesService.detail5({ appModuleId }));
 
+export const getSasById = (sasId: string) => pipe(() => SaSesService.detail({ sasId }));
+
 export const getDeployments = (deploymentUnitId: Option<string> = option.none) =>
   pipe(
     () =>
