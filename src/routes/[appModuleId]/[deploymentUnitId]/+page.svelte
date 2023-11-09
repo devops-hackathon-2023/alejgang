@@ -1,12 +1,14 @@
 <script lang="ts">
   import { base } from '$app/paths';
   import Copy from '$components/elements/Copy.svelte';
+  import Loader from '$components/elements/Loader.svelte';
   import LoaderCloud from '$components/elements/LoaderCloud.svelte';
   import Select from '$components/elements/Select.svelte';
   import Clickable from '$components/utils/Clickable.svelte';
   import { getDeploymentsWithVersionsGroupedByVersion, getUnitVersions } from '$lib';
-  import { DeploymentResponse } from '$lib/client';
+  import { DeploymentResponse, QualityGateResponse } from '$lib/client';
   import { secondsToHMS } from '$lib/date';
+  import { getQualityGatesWithStatistics } from '$lib/gates';
   import { selectOptions } from '$lib/util';
   import { either, option } from 'fp-ts';
   import {
@@ -68,7 +70,7 @@
     Error: {deploymentGroups.left.message}
   {:else}
     {@const deploymentEnvironments = Object.values(DeploymentResponse.environment)}
-    <div class="flex gap-6 border rounded-2xl p-4 pl-6">
+    <div class="flex gap-6 border rounded-2xl p-4 pl-6 pt-6">
       <div class="flex flex-col min-h-full">
         {#each deploymentEnvironments as environment}
           <div class="flex-1">
@@ -79,12 +81,29 @@
         {/each}
       </div>
       <div class="overflow-scroll w-full min-h-full">
-        <div class="flex min-h-full ml-4">
+        <div class="flex min-h-full ml-4 relative">
           {#each Object.entries(deploymentGroups.right)
             .sort(([a], [b]) => (a > b ? -1 : 1))
             .filter(([$]) => versionInput === null || $ === versionInput[1])
-            .map( ([, $]) => deploymentEnvironments.map( (environment) => ({ environment, deployment: $.sort( (a, b) => a.startedAt.localeCompare(b.startedAt) ).find(($) => $.environment === environment) }) ) ) as version}
-            <div class="grid grid-rows-{deploymentEnvironments.length} min-w-[16rem]">
+            .map( ([v, $]) => deploymentEnvironments.map( (environment) => ({ versionId: $[0].versionId, environment, deployment: $.sort( (a, b) => a.startedAt.localeCompare(b.startedAt) ).find(($) => $.environment === environment) }) ) ) as version}
+            <div class="grid grid-rows-{deploymentEnvironments.length} min-w-[16rem] relative">
+              <div class="absolute top-[-6px] left-2 flex gap-2 bg-white">
+                {#await getQualityGatesWithStatistics(Object.entries(version)[0][1].versionId)()}
+                  <Loader />
+                {:then stats}
+                  {#if either.isRight(stats)}
+                    <p>{stats.right.statistics.averageRating},</p>
+                    <p>{stats.right.statistics.passed}/{stats.right.statistics.total} passed,</p>
+                    {#if stats.right.qualityGates.length > 0}
+                      {@const qualityGate = stats.right.qualityGates.find(
+                        ($) => $.type === QualityGateResponse.type.CODE_COVERAGE
+                      )}
+
+                      <p>{option.getOrElse(() => 0)(qualityGate?.percent ?? option.some(0))}%</p>
+                    {/if}
+                  {/if}
+                {/await}
+              </div>
               {#each version as environment}
                 <div class="flex-1 border-l relative p-4">
                   {#if environment.deployment}
