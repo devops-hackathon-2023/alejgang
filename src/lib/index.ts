@@ -5,7 +5,7 @@ import { groupBy } from 'fp-ts/lib/NonEmptyArray';
 
 import { getRunning } from '$lib/pipeline';
 import type { Option } from 'fp-ts/lib/Option';
-import { pipe } from 'fp-ts/lib/function';
+import { flow, pipe } from 'fp-ts/lib/function';
 import {
   AppModulesService,
   DeploymentResponse,
@@ -15,6 +15,7 @@ import {
   OpenAPI,
   SaSesService,
   StartDeploymentRequest,
+  type DeploymentUnitVersionResponse,
 } from './client';
 
 OpenAPI.USERNAME = 'dopo';
@@ -160,4 +161,21 @@ export const getUnitById = (deploymentUnitId: string) =>
     DeploymentUnitsService.detail3({
       deploymentUnitId,
     }),
+  );
+
+type ResponseWithVersion = DeploymentResponse & {
+  version: DeploymentUnitVersionResponse;
+} & {
+  remaining: number;
+};
+
+export const getDeploymentsWithVersionsGroupedByVersion = (deploymentUnitId: string) =>
+  pipe(
+    getDeploymentsWithVersions(deploymentUnitId),
+    taskEither.map(
+      flow(
+        array.filter(($): $ is ResponseWithVersion => $.version !== undefined),
+        groupBy(($) => $.version.version),
+      ),
+    ),
   );

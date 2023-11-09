@@ -4,12 +4,11 @@
   import LoaderCloud from '$components/elements/LoaderCloud.svelte';
   import Select from '$components/elements/Select.svelte';
   import Clickable from '$components/utils/Clickable.svelte';
-  import { getDeploymentsWithVersionsGroupedByEnv, getUnitVersions, sortEnvByEnum } from '$lib';
+  import { getDeploymentsWithVersionsGroupedByVersion, getUnitVersions } from '$lib';
   import { DeploymentResponse } from '$lib/client';
   import { secondsToHMS } from '$lib/date';
   import { selectOptions } from '$lib/util';
-  import { array, either, option } from 'fp-ts';
-  import { pipe } from 'fp-ts/lib/function';
+  import { either, option } from 'fp-ts';
   import {
     AlertTriangle,
     CheckSquare2,
@@ -62,89 +61,94 @@
     {/if}
   {/await}
 </div>
-{#await getDeploymentsWithVersionsGroupedByEnv(unit.id)()}
+{#await getDeploymentsWithVersionsGroupedByVersion(unit.id)()}
   <LoaderCloud size={128} />
 {:then deploymentGroups}
   {#if either.isLeft(deploymentGroups)}
     Error: {deploymentGroups.left.message}
   {:else}
-    <div class="flex gap-6">
-      {#each Object.entries(deploymentGroups.right)
-        .sort((a, b) => {
-          return sortEnvByEnum(a[0], b[0]);
-        })
-        .map( ([a, b]) => ({ environment: a, deployments: b.sort( (a, b) => (a.startedAt > b.startedAt ? -1 : 1) ) }) ) as deploymentGroup}
-        {@const deployments = deploymentGroup.deployments
-          .sort((a, b) =>
-            (a.version?.version ?? '0.0.0') > (b.version?.version ?? '0.0.0') ? -1 : 1
-          )
-          .filter((a) => (versionInput === null ? true : versionInput[1] === a.version?.version))}
-        <div class="border p-4 rounded-2xl flex-1">
-          <h2
-            class="mb-2 font-bold"
-            class:text-status-fail={pipe(
-              deployments,
-              array.head,
-              option.map(({ status }) => status === DeploymentResponse.status.FAILED),
-              option.getOrElse(() => false)
-            )}
-            class:text-status-success={pipe(
-              deployments,
-              array.head,
-              option.map(({ status }) => status === DeploymentResponse.status.SUCCESS),
-              option.getOrElse(() => false)
-            )}
-          >
-            {deploymentGroup.environment}
-          </h2>
-          <div class="flex flex-col gap-2">
-            {#each deployments as deployment}
-              {@const failed = deployment.status === DeploymentResponse.status.FAILED}
-              {@const success = deployment.status === DeploymentResponse.status.SUCCESS}
-              <div class="flex items-center gap-2 relative border-t pt-2">
-                <div class="absolute left-[-26px] bg-white">
-                  {#if failed}
-                    <AlertTriangle color="#e72222" size={20} />
-                  {:else if success}
-                    <CheckSquare2 color="#028661" size={20} />
-                  {:else}
-                    <Hourglass color="#2870ed" size={20} />
+    {@const deploymentEnvironments = Object.values(DeploymentResponse.environment)}
+    <div class="flex gap-6 border rounded-2xl p-4 pl-6">
+      <div class="flex flex-col min-h-full">
+        {#each deploymentEnvironments as environment}
+          <div class="flex-1">
+            <h2 class="mb-2 font-bold">
+              {environment}
+            </h2>
+          </div>
+        {/each}
+      </div>
+      <div class="overflow-scroll w-full min-h-full">
+        <div class="flex min-h-full ml-4">
+          {#each Object.entries(deploymentGroups.right)
+            .sort(([a], [b]) => (a > b ? -1 : 1))
+            .filter(([$]) => versionInput === null || $ === versionInput[1])
+            .map( ([, $]) => deploymentEnvironments.map( (environment) => ({ environment, deployment: $.sort( (a, b) => a.startedAt.localeCompare(b.startedAt) ).find(($) => $.environment === environment) }) ) ) as version}
+            <div class="grid grid-rows-{deploymentEnvironments.length} min-w-[16rem]">
+              {#each version as environment}
+                <div class="flex-1 border-l relative p-4">
+                  {#if environment.deployment}
+                    {@const deployment = environment.deployment}
+                    {@const failed = deployment.status === DeploymentResponse.status.FAILED}
+                    {@const success = deployment.status === DeploymentResponse.status.SUCCESS}
+                    <div>
+                      <div class="absolute left-[-10px] top-5 bg-white">
+                        {#if failed}
+                          <AlertTriangle color="#e72222" size={20} />
+                        {:else if success}
+                          <CheckSquare2 color="#028661" size={20} />
+                        {:else}
+                          <Hourglass color="#2870ed" size={20} />
+                        {/if}
+                      </div>
+                      <div class="flex items-center justify-between">
+                        <div>
+                          {#if deployment.version}
+                            <span
+                              class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-100/80"
+                            >
+                              v{deployment.version?.version}
+                            </span>
+                          {/if}
+                        </div>
+                        <div>
+                          {#if option.isSome(deployment.duration)}
+                            <span
+                              class="border rounded-lg p-1 pl-2 pr-2 flex items-center gap-2 text-sm w-24"
+                            >
+                              <Timer size={16} />
+                              {secondsToHMS(deployment.duration.value)}
+                            </span>
+                          {/if}
+                        </div>
+                      </div>
+                      <div class="flex items-center justify-between">
+                        <div>
+                          {#if option.isSome(deployment.finishedAt)}
+                            <span class="text-right text-sm flex-1">
+                              {new Date(deployment.finishedAt.value).toLocaleString('cs-CZ', {
+                                timeZone: 'CET',
+                                timeStyle: 'short'
+                              })}
+                              {new Date(deployment.finishedAt.value).toLocaleString('cs-CZ', {
+                                timeZone: 'CET',
+                                dateStyle: 'short'
+                              })}
+                            </span>
+                          {/if}
+                        </div>
+                        <div class="text-sm">
+                          {deployment.deployer}
+                        </div>
+                      </div>
+                    </div>
                   {/if}
                 </div>
-                {#if deployment.version}
-                  <span
-                    class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-100/80"
-                  >
-                    v{deployment.version?.version}
-                  </span>
-                {/if}
-                {#if option.isSome(deployment.finishedAt)}
-                  <p class="text-right text-sm flex-1">
-                    {new Date(deployment.finishedAt.value).toLocaleString('cs-CZ', {
-                      timeZone: 'CET',
-                      timeStyle: 'short'
-                    })}
-                    {new Date(deployment.finishedAt.value).toLocaleString('cs-CZ', {
-                      timeZone: 'CET',
-                      dateStyle: 'short'
-                    })}
-                  </p>
-                {/if}
-              </div>
-              <div>
-                {#if option.isSome(deployment.duration)}
-                  <span
-                    class="border rounded-lg p-1 pl-2 pr-2 flex items-center gap-2 text-sm w-24"
-                  >
-                    <Timer size={16} />
-                    {secondsToHMS(deployment.duration.value)}
-                  </span>
-                {/if}
-              </div>
-            {/each}
-          </div>
+              {/each}
+            </div>
+          {/each}
         </div>
-      {/each}
+      </div>
     </div>
   {/if}
 {/await}
