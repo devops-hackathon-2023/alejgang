@@ -113,9 +113,9 @@
                 </div>
                 {#if deployment.version}
                   <span
-                    class="border rounded-lg p-1 pl-2 pr-2 font-mono text-sm text-center block w-19"
+                    class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-100/80"
                   >
-                    {deployment.version?.version}
+                    v{deployment.version?.version}
                   </span>
                 {/if}
                 {#if option.isSome(deployment.finishedAt)}
