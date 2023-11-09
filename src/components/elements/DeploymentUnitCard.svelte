@@ -13,7 +13,7 @@
     </h3>
     {#if id}
       <div class="max-w-full min-w-0">
-        <Copy prefix="id: " text={id} truncate />
+        <Copy prefix="" text={id} truncate />
       </div>
     {/if}
   </div>

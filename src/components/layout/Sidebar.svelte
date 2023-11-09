@@ -5,8 +5,8 @@
 </script>
 
 <div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-  <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-csas-600 px-6 pb-4">
-    <div class="flex h-16 shrink-0 items-center">
+  <div class="flex grow flex-col gap-y-6 overflow-y-auto bg-csas-600 px-6 py-6">
+    <div class="flex shrink-0 items-center">
       <svg class="w-5/12" viewBox="0 0 658 296" fill="none" xmlns="http://www.w3.org/2000/svg">
         <g clip-path="url(#clip0_1339_258)">
           <path

@@ -12,7 +12,7 @@
 </script>
 
 <button
-  class="font-mono text-xs flex gap-2 border border-solid border-transparent hover:border-csas-200 rounded-lg transition p-2 min-w-0 max-w-full"
+  class="font-mono text-[10px] flex gap-2 border border-solid border-transparent hover:border-csas-200 rounded-lg transition p-2 min-w-0 max-w-full items-center"
   on:click={() => {
     copy(text ?? '');
     copied = true;
@@ -22,11 +22,16 @@
   }}
 >
   <p class:truncate>
-    {prefix ?? ''}{text}{suffix ?? ''}
+    <span class="relative">
+      {prefix ?? ''}{text}{suffix ?? ''}
+      {#if copied}
+        <span class="absolute left-0 w-full text-left bg-white">Copied!</span>
+      {/if}
+    </span>
   </p>
   {#if copied}
-    <Check size={16} />
+    <Check size={14} />
   {:else}
-    <Copy size={16} />
+    <Copy size={14} />
   {/if}
 </button>

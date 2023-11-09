@@ -17,11 +17,11 @@ export const fetchDeploymentsByUnitId = (deploymentUnitId: string) => () =>
     startedAtGte: pipe(date.create, subYears(1), io.map(dateToStr), io.map(option.some), exec),
   });
 
-export const estimate = (deployment: DeploymentResponse) =>
+export const estimate = (deployment: DeploymentResponse) => (fetchOtherDeployments: typeof fetchDeploymentsByUnitId) =>
   pipe(
     deployment,
     ({ deploymentUnitId }) => deploymentUnitId,
-    fetchDeploymentsByUnitId,
+    fetchOtherDeployments,
     taskEither.map(({ page }) => page),
     taskEither.map(array.map(({ duration, startedAt }) => ({ duration, startedAt: strToDate(startedAt)() }))),
     taskEither.map(array.filter(($): $ is HasData => option.isSome($.startedAt) && option.isSome($.duration))),
@@ -32,7 +32,7 @@ export const estimate = (deployment: DeploymentResponse) =>
 export const remaining = (deployment: DeploymentResponse) =>
   pipe(
     taskEither.bindTo('deployment')(taskEither.of(deployment)),
-    taskEither.bind('estimate', ({ deployment }) => estimate(deployment)),
+    taskEither.bind('estimate', ({ deployment }) => estimate(deployment)(fetchDeploymentsByUnitId)),
     taskEither.bindW('now', () => pipe(date.create, taskEither.fromIO)),
     taskEither.bind('started', ({ deployment }) =>
       pipe(
