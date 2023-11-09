@@ -137,6 +137,21 @@ export const getDeploymentsWithVersions = (deploymentUnitId: string) =>
 export const getDeploymentsWithVersionsGroupedByEnv = (deploymentUnitId: string) =>
   pipe(getDeploymentsWithVersions(deploymentUnitId), taskEither.map(groupBy(($) => $.environment)));
 
+export const getDeploymentsByAppModuleId = (deploymentUnitId: Option<string> = option.none) =>
+  pipe(
+    () =>
+      DeploymentsService.list3({
+        startedAtGte: pipe(date.create, subYears(1), io.map(dateToStr), (io) => io(), option.some),
+        startedAtLte: pipe(date.create, io.map(dateToStr), (io) => io(), option.some),
+        deploymentUnitId,
+        size: option.some(100),
+      }),
+    taskEither.map(($) => $.page),
+  );
+
+export const getDeploymentsGroupedByDeployer = (deploymentUnitId: string) =>
+  pipe(getDeploymentsByAppModuleId(option.some(deploymentUnitId)), taskEither.map(groupBy(($) => $.deployer)));
+
 export const sortEnvByEnum = (a: string, b: string) =>
   pipe(DeploymentResponse.environment, Object.values, (array: string[]) => array.indexOf(a) - array.indexOf(b));
 

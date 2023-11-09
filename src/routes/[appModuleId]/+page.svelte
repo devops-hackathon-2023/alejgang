@@ -5,15 +5,24 @@
   import LoaderCloud from '$components/elements/LoaderCloud.svelte';
   import Select from '$components/elements/Select.svelte';
   import Clickable from '$components/utils/Clickable.svelte';
-  import { getDeploymentsWithVersionsGroupedByEnv, getUnitVersions, sortEnvByEnum } from '$lib';
+  import {
+    getDeploymentsGroupedByDeployer,
+    getDeploymentsWithVersionsGroupedByEnv,
+    getUnitVersions,
+    sortEnvByEnum
+  } from '$lib';
   import { DeploymentResponse, type AppModuleResponse, type SasResponse } from '$lib/client';
   import { secondsToHMS } from '$lib/date';
+  import { weightedAverage } from '$lib/math';
+  import { classNames } from '$lib/string';
   import { selectOptions } from '$lib/util';
-  import { either, option } from 'fp-ts';
+  import { Disclosure, DisclosureButton, DisclosurePanel } from '@rgossiaux/svelte-headlessui';
+  import { either, option, record } from 'fp-ts';
   import {
     AlertTriangle,
     CheckSquare2,
     ChevronRight,
+    ChevronRightIcon,
     FilterX,
     Hourglass,
     Star,
@@ -74,7 +83,7 @@
   </Clickable>
   <Copy prefix="id: " text={data.appModule.id} truncate />
 </div>
-<div class="grid xl:grid-cols-2 gap-4">
+<div class="grid xl:grid-cols-2 gap-4 items-start">
   {#each data.units as unit}
     <DeploymentUnitCard repo={unit.repositoryUrl} id={unit.id}>
       <svelte:fragment slot="name">{unit.name}</svelte:fragment>
@@ -121,7 +130,7 @@
               {/if}
             {/await}
           </div>
-          <div class="grid grid-cols-[20px,_1fr,_64px,_auto,_auto,_110px,_auto] gap-2 items-center">
+          <div class="grid grid-cols-[20px,_1fr,_auto,_auto,_auto,_100px,_auto] gap-2 items-center">
             {#each Object.entries(deploymentGroups.right)
               .sort((a, b) => {
                 const desc = /desc/i.test(sortBy?.[0] ?? '') ? 1 : -1;
@@ -154,13 +163,13 @@
               <span class="font-bold">
                 {deployment.environment}:
               </span>
-              <span>
-                {#if deployment.version}
-                  <span class="border rounded-lg p-1 pl-2 pr-2 font-mono text-sm text-center">
-                    {deployment.version?.version}
-                  </span>
-                {/if}
-              </span>
+              {#if deployment.version}
+                <span
+                  class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-100/80"
+                >
+                  v{deployment.version?.version}
+                </span>
+              {/if}
               {#if option.isSome(deployment.finishedAt)}
                 <span class="text-right">
                   {new Date(deployment.finishedAt.value).toLocaleString('cs-CZ', {
@@ -207,9 +216,58 @@
               href="{base}/{data.appModule.id}/{unit.id}"
               class="p-2 pl-3 pr-3 rounded-lg bg-csas-600 text-csas-50"
             >
-              Show More
+              Show More...
             </a>
           </div>
+
+          {#await getDeploymentsGroupedByDeployer(unit.id)() then deployments}
+            {#if either.isRight(deployments)}
+              {@const deploys = record.toEntries(deployments.right)}
+              <Disclosure let:open class="mt-4">
+                <DisclosureButton class="flex justify-between items-center w-full">
+                  <h3 class="font-medium text-md mr-2">Health scores</h3>
+
+                  <ChevronRightIcon style={open ? 'transform: rotate(90deg);' : ''} />
+                </DisclosureButton>
+
+                <DisclosurePanel class="mt-2">
+                  <div class="grid grid-cols-[_1fr, _1fr] gap-2 gap-x-10">
+                    <div class="mb-2 flex justify-between items-center col-span-2">
+                      <span class="text-xs font-medium opacity-50"
+                        >Higher means better chance of succeeding pipelines in the future</span
+                      >
+                    </div>
+                    {#each deploys as [deployer, deployment]}
+                      {@const score = Math.ceil(
+                        weightedAverage(
+                          deployment.map(($) => ({
+                            date: new Date($.startedAt),
+                            value: $.status === DeploymentResponse.status.SUCCESS ? 1 : 0
+                          }))
+                        ) * 100
+                      )}
+
+                      <div class="flex justify-between items-center">
+                        <p>{deployer}</p>
+                        <p
+                          class={classNames(
+                            score >= 75
+                              ? 'text-green-500'
+                              : score >= 50
+                              ? 'text-orange-400'
+                              : 'text-red-500',
+                            'text-lg font-semibold'
+                          )}
+                        >
+                          {score}
+                        </p>
+                      </div>
+                    {/each}
+                  </div>
+                </DisclosurePanel>
+              </Disclosure>
+            {/if}
+          {/await}
         {/if}
       {/await}
     </DeploymentUnitCard>

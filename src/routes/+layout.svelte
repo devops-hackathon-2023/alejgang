@@ -26,7 +26,6 @@
     getAppModulesBySas(sasId.value[0])().then((resp) => {
       if (either.isRight(resp)) {
         appModules = [...resp.right];
-        // selectedAppModule.set(option.some(resp.right[0]));
       }
     });
   }
@@ -36,13 +35,9 @@
     favs = [...$];
   });
 
-  onMount(() => {
-    const sas = $page.data['sas'] as SasResponse | undefined;
-
-    if (sas) {
-      sasIdInput = [sas.id, sas.name];
-    }
-  });
+  $: if ($page.data['sas']?.id && $page.data['sas']?.name) {
+    sasIdInput = [$page.data['sas'].id, $page.data['sas'].name];
+  }
 
   onMount(async () => {
     const storageFavorites = localStorage.getItem('favorites');
@@ -56,7 +51,7 @@
     const storageLast = localStorage.getItem('last');
 
     if (storageLast) {
-      const [, appModule] = JSON.parse(storageLast);
+      const [sas, appModule] = JSON.parse(storageLast);
 
       console.log('GOTO IN storageLast');
       await goto(`/${appModule.id}`);

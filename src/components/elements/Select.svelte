@@ -7,6 +7,7 @@
     ListboxOptions,
     Transition
   } from '@rgossiaux/svelte-headlessui';
+  import { ChevronDown, ChevronUp } from 'lucide-svelte';
 
   import { createEventDispatcher } from 'svelte';
 
@@ -26,8 +27,24 @@
 <Listbox bind:value let:open class="relative">
   <ListboxButton
     class="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-black shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-csas-400 sm:text-sm sm:leading-6"
-    >{value ? humanize(value[1]) : placeholder}</ListboxButton
   >
+    {value ? humanize(value[1]) : placeholder}
+    {#if open}
+      <ChevronUp
+        class="absolute right-1 top-1/2 translate-y-[-50%]"
+        color="#444"
+        strokeWidth={2}
+        size={18}
+      />
+    {:else}
+      <ChevronDown
+        class="absolute right-1 top-1/2 translate-y-[-50%]"
+        color="#444"
+        strokeWidth={2}
+        size={18}
+      />
+    {/if}
+  </ListboxButton>
   <Transition
     show={open}
     leave="transition ease-in duration-100"
