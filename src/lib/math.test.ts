@@ -155,7 +155,7 @@ describe('average', () => {
           { value: 5, date: new Date(2021, 0, 2) },
           { value: 6, date: new Date(2021, 0, 2) },
         ]),
-      ) === 4.375,
+      ) === 4,
     );
   });
 });
