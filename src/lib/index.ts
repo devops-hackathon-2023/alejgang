@@ -2,6 +2,7 @@ import { dateToStr, subYears } from '$lib/date';
 import { optionEqString } from '$lib/eq';
 import { console, date, either, io, option, taskEither } from 'fp-ts';
 import { groupBy } from 'fp-ts/lib/NonEmptyArray';
+
 import type { Option } from 'fp-ts/lib/Option';
 import { pipe } from 'fp-ts/lib/function';
 import {
@@ -41,6 +42,7 @@ export const getUnits = pipe(
     DeploymentUnitsService.list4({
       createdAtGte: pipe(date.create, subYears(1), io.map(dateToStr), (io) => io(), option.some),
       createdAtLte: pipe(date.create, io.map(dateToStr), (io) => io(), option.some),
+      size: option.some(100),
     }),
   taskEither.map((r) => r.page),
   taskEither.tapIO((data) => console.log(data)),
@@ -52,6 +54,7 @@ export const getUnitsByModuleId = (appModuleId: option.Option<string>) =>
       DeploymentUnitsService.list4({
         createdAtGte: pipe(date.create, subYears(1), io.map(dateToStr), (io) => io(), option.some),
         createdAtLte: pipe(date.create, io.map(dateToStr), (io) => io(), option.some),
+        size: option.some(100),
       }),
     taskEither.map((r) => r.page),
     taskEither.tapIO((data) => console.log(data)),
@@ -59,14 +62,17 @@ export const getUnitsByModuleId = (appModuleId: option.Option<string>) =>
   );
 
 export const getSASes = pipe(
-  () => SaSesService.list({}),
+  () =>
+    SaSesService.list({
+      size: option.some(100),
+    }),
   taskEither.map(($) => $.page),
   taskEither.tapIO((data) => console.log(data)),
 );
 
 export const getAppModulesBySas = (sasId: string) =>
   pipe(
-    () => AppModulesService.list1({ sasId }),
+    () => AppModulesService.list1({ sasId, size: option.some(100) }),
     taskEither.map(($) => $.page),
     taskEither.tapIO((data) => console.log(data)),
   );
@@ -82,15 +88,18 @@ export const getDeployments = (deploymentUnitId: Option<string> = option.none) =
         startedAtGte: pipe(date.create, subYears(1), io.map(dateToStr), (io) => io(), option.some),
         startedAtLte: pipe(date.create, io.map(dateToStr), (io) => io(), option.some),
         deploymentUnitId,
+        size: option.some(100),
       }),
     taskEither.map(($) => $.page),
   );
 
-export const getUnitVersions = (deploymentUnitId: string) =>
+export const getUnitVersions = (deploymentUnitId: string, page: Option<number> | undefined = undefined) =>
   pipe(
     () =>
       DeploymentUnitVersionsService.list5({
         deploymentUnitId,
+        page,
+        size: option.some(100),
       }),
     taskEither.map(($) => $.page),
   );
@@ -119,3 +128,10 @@ export const getDeploymentsWithVersionsGroupedByEnv = (deploymentUnitId: string)
 
 export const sortEnvByEnum = (a: string, b: string) =>
   pipe(DeploymentResponse.environment, Object.values, (array: string[]) => array.indexOf(a) - array.indexOf(b));
+
+export const getUnitById = (deploymentUnitId: string) =>
+  pipe(() =>
+    DeploymentUnitsService.detail3({
+      deploymentUnitId,
+    }),
+  );
