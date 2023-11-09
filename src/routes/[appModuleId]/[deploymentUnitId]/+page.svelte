@@ -4,16 +4,16 @@
   import LoaderCloud from '$components/elements/LoaderCloud.svelte';
   import Select from '$components/elements/Select.svelte';
   import Clickable from '$components/utils/Clickable.svelte';
-  import { getDeploymentsWithVersionsGroupedByVersion, getUnitVersions } from '$lib';
+  import { getDeploymentsWithVersionsGroupedByVersion, getUnitVersions, sortEnvByEnum } from '$lib';
   import { DeploymentResponse } from '$lib/client';
   import { secondsToHMS } from '$lib/date';
   import { selectOptions } from '$lib/util';
-  import { either, option } from 'fp-ts';
+  import { array, either, option } from 'fp-ts';
+  import { pipe } from 'fp-ts/lib/function';
   import {
     AlertTriangle,
     CheckSquare2,
     ChevronRight,
-    ExternalLink,
     FilterX,
     Hourglass,
     Timer
@@ -62,7 +62,7 @@
     {/if}
   {/await}
 </div>
-{#await getDeploymentsWithVersionsGroupedByEnv(unit.id)()}
+{#await getDeploymentsWithVersionsGroupedByVersion(unit.id)()}
   <LoaderCloud size={128} />
 {:then deploymentGroups}
   {#if either.isLeft(deploymentGroups)}
@@ -144,7 +144,7 @@
             {/each}
           </div>
         </div>
-      </div>
+      {/each}
     </div>
   {/if}
 {/await}
