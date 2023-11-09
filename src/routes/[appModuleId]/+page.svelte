@@ -142,7 +142,7 @@
               {/if}
             {/await}
           </div>
-          <div class="grid grid-cols-[20px,_1fr,_auto,_auto,_auto,_110px,_auto] gap-2 items-center">
+          <div class="grid grid-cols-[20px,_1fr,_auto,_auto,_auto,_auto,_auto] gap-3 items-center">
             {#each Object.entries(deploymentGroups.right)
               .sort((a, b) => {
                 const desc = /desc/i.test(sortBy?.[0] ?? '') ? 1 : -1;
@@ -173,7 +173,7 @@
                 {/if}
               </div>
               <span class="font-bold">
-                {deployment.environment}:
+                {deployment.environment}
               </span>
               <span>
                 {#if deployment.version}
@@ -201,7 +201,7 @@
               {:else}
                 <span /><span />
               {/if}
-              <span class="border rounded-lg p-1 pl-2 pr-2 flex items-center gap-2">
+              <span class="border rounded-lg p-1 pl-2 pr-2 flex items-center justify-between gap-2">
                 {#if option.isSome(deployment.duration)}
                   <Timer size={16} />
                   {secondsToHMS(deployment.duration.value)}
@@ -219,6 +219,7 @@
                 class:text-status-fail={failed}
                 class:font-bold={failed}
                 class:text-status-success={success}
+                class:text-status-started={!failed && !success}
               >
                 {deployment.status}
               </span>

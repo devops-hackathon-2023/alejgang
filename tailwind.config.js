@@ -20,6 +20,7 @@ export default {
         status: {
           fail: '#e72222',
           success: '#028661',
+          started: '#2870ed',
         },
       },
       fontFamily: {
