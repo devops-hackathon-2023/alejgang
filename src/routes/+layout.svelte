@@ -5,7 +5,7 @@
   import { goto } from '$app/navigation';
   import { base } from '$app/paths';
   import { page } from '$app/stores';
-  import { getAppModulesBySas, getSASes } from '$lib';
+  import { getAppModulesBySas } from '$lib';
   import type { AppModuleResponse, SasResponse } from '$lib/client';
   import { optionEqString } from '$lib/eq';
   import { classNames, humanize } from '$lib/string';
@@ -13,9 +13,11 @@
   import { favorites } from '$src/stores';
   import { either, option } from 'fp-ts';
   import { onMount } from 'svelte';
-  import Loader from '../components/elements/Loader.svelte';
   import Select from '../components/elements/Select.svelte';
   import Sidebar from '../components/layout/Sidebar.svelte';
+  import type { LayoutData } from './$types';
+
+  export let data: LayoutData;
 
   let appModules: AppModuleResponse[] = [];
 
@@ -48,50 +50,42 @@
       favorites.set(favoritesJson);
     }
 
-    const storageLast = localStorage.getItem('last');
+    // const storageLast = localStorage.getItem('last');
 
-    if (storageLast) {
-      const [sas, appModule] = JSON.parse(storageLast);
+    // if (storageLast) {
+    //   const [sas, appModule] = JSON.parse(storageLast);
 
-      console.log('GOTO IN storageLast');
-      await goto(`/${appModule.id}`);
+    //   console.log('GOTO IN storageLast');
+    //   await goto(`/${appModule.id}`);
 
-      sasIdInput = [sas.id, sas.name];
-    }
+    //   sasIdInput = [sas.id, sas.name];
+    // }
   });
 </script>
 
 <Sidebar>
   <ul role="list" class="flex flex-1 flex-col gap-y-6">
-    {#await getSASes()}
-      <Loader />
-    {:then sases}
-      {#if either.isLeft(sases)}
-        very error help
-      {:else}
-        <section class="-mx-2">
-          <Select
-            bind:value={sasIdInput}
-            on:change={async (event) => {
-              const modules = await getAppModulesBySas(event.detail.id)();
+    <section class="-mx-2">
+      <Select
+        bind:value={sasIdInput}
+        on:change={async (event) => {
+          const modules = await getAppModulesBySas(event.detail.id)();
 
-              if (either.isLeft(modules) || modules.right.length === 0) {
-                return;
-              }
+          if (either.isLeft(modules) || modules.right.length === 0) {
+            return;
+          }
 
-              console.log('GOTO IN select');
-              localStorage.setItem(
-                'last',
-                JSON.stringify([$page.data['sas'], $page.data['appModule']])
-              );
-              await goto(`/${modules.right[0].id}`);
-            }}
-            options={selectOptions(sases.right)}
-            placeholder="Select SAS..."
-          />
-        </section>
-      {/if}
-    {/await}
+          // console.log('GOTO IN select');
+          // localStorage.setItem(
+          //   'last',
+          //   JSON.stringify([$page.data['sas'], $page.data['appModule']])
+          // );
+          await goto(`/${modules.right[0].id}`);
+        }}
+        options={selectOptions(data.sases)}
+        placeholder="Select SAS..."
+      />
+    </section>
 
     {#if option.isSome(sasId)}
       <li>
@@ -110,14 +104,6 @@
                     : 'text-csas-50 hover:text-white hover:bg-csas-700',
                   'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-all'
                 )}
-                on:click={() => {
-                  setTimeout(() => {
-                    localStorage.setItem(
-                      'last',
-                      JSON.stringify([$page.data['sas'], $page.data['appModule']])
-                    );
-                  }, 1000);
-                }}
               >
                 <span class="truncate">{humanize(module.name)}</span>
               </a>
@@ -137,12 +123,12 @@
                   console.log('GOTO IN click on fav');
                   await goto(`/${appModule.id}`);
 
-                  setTimeout(() => {
-                    localStorage.setItem(
-                      'last',
-                      JSON.stringify([$page.data['sas'], $page.data['appModule']])
-                    );
-                  }, 1000);
+                  // setTimeout(() => {
+                  //   localStorage.setItem(
+                  //     'last',
+                  //     JSON.stringify([$page.data['sas'], $page.data['appModule']])
+                  //   );
+                  // }, 1000);
                 }}
                 class={classNames(
                   optionEqString.equals(
