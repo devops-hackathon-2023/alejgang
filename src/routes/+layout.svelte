@@ -98,7 +98,7 @@
 
     {#if option.isSome(sasId)}
       <li>
-        <div class="text-xs font-semibold leading-6 text-csas-100 uppercase">App modules</div>
+        <div class="text-sm font-semibold leading-6 text-csas-100 uppercase">App modules</div>
         <ul role="list" class="-mx-2 mt-2 space-y-1">
           {#each appModules as module (module.id)}
             <li>
@@ -130,8 +130,8 @@
       </li>
     {/if}
     {#if favs.length !== 0}
-      <li class="mt-auto">
-        <div class="text-xs font-semibold leading-6 text-csas-100 uppercase">Favorites</div>
+      <li class="mt-auto pt-2 border-t border-csas-400">
+        <div class="text-sm font-semibold leading-6 text-csas-100 uppercase">Favorites</div>
         <ul role="list" class="-mx-2 mt-2 space-y-1">
           {#each favs as [sas, appModule]}
             <li>
