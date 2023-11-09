@@ -9,13 +9,13 @@ import { flow, pipe } from 'fp-ts/lib/function';
 import {
   AppModulesService,
   DeploymentResponse,
+  type DeploymentUnitVersionResponse,
   DeploymentUnitVersionsService,
   DeploymentUnitsService,
   DeploymentsService,
   OpenAPI,
   SaSesService,
   StartDeploymentRequest,
-  type DeploymentUnitVersionResponse,
 } from './client';
 
 OpenAPI.USERNAME = 'dopo';
