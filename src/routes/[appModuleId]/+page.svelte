@@ -28,6 +28,7 @@
     Star,
     Timer
   } from 'lucide-svelte';
+  import { onMount } from 'svelte';
   import { favorites } from '../../stores';
   import type { PageData } from './$types';
 
@@ -66,8 +67,12 @@
   let versionInput: [string, string] | null = null;
   let sortBy: [string, string] | null = ['', 'Default'];
 
-  let secondsFromLoad = 0;
-  setInterval(() => secondsFromLoad++, 1000);
+  let now = Date.now();
+  onMount(() => {
+    setInterval(() => {
+      now = Date.now();
+    }, 1000);
+  });
 </script>
 
 <a class="flex gap-1 items-center" href="{base}/{data.appModule.id}">
@@ -130,7 +135,7 @@
               {/if}
             {/await}
           </div>
-          <div class="grid grid-cols-[20px,_1fr,_auto,_auto,_auto,_100px,_auto] gap-2 items-center">
+          <div class="grid grid-cols-[20px,_1fr,_auto,_auto,_auto,_110px,_auto] gap-2 items-center">
             {#each Object.entries(deploymentGroups.right)
               .sort((a, b) => {
                 const desc = /desc/i.test(sortBy?.[0] ?? '') ? 1 : -1;
@@ -163,13 +168,15 @@
               <span class="font-bold">
                 {deployment.environment}:
               </span>
-              {#if deployment.version}
-                <span
-                  class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-100/80"
-                >
-                  v{deployment.version?.version}
-                </span>
-              {/if}
+              <span>
+                {#if deployment.version}
+                  <span
+                    class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-100/80"
+                  >
+                    v{deployment.version?.version}
+                  </span>
+                {/if}
+              </span>
               {#if option.isSome(deployment.finishedAt)}
                 <span class="text-right">
                   {new Date(deployment.finishedAt.value).toLocaleString('cs-CZ', {
@@ -195,9 +202,7 @@
                     <Hourglass size={16} />
                   </div>
                   {secondsToHMS(
-                    Math.floor(
-                      (new Date().getTime() - new Date(deployment.startedAt).getTime()) / 1000
-                    ) + secondsFromLoad
+                    Math.floor((now - new Date(deployment.startedAt).getTime()) / 1000)
                   )}
                 {/if}
               </span>
@@ -234,7 +239,8 @@
                   <div class="grid grid-cols-[_1fr, _1fr] gap-2 gap-x-10">
                     <div class="mb-2 flex justify-between items-center col-span-2">
                       <span class="text-xs font-medium opacity-50"
-                        >Higher means better chance of succeeding pipelines in the future</span
+                        >Scale 0 to 100, higher means better chance of succeeding pipelines in the
+                        future</span
                       >
                     </div>
                     {#each deploys as [deployer, deployment]}
