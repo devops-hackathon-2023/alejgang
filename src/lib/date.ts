@@ -1,8 +1,17 @@
-import { io, string } from 'fp-ts';
+import { io, option, string } from 'fp-ts';
 import type { IO } from 'fp-ts/lib/IO';
+import type { Option } from 'fp-ts/lib/Option';
 import { pipe } from 'fp-ts/lib/function';
 
 export const dateToStr = (date: Date) => pipe(date, (date) => date.toISOString(), string.slice(0, -5));
+
+export const dateToUnix = (date: Date) => pipe(date, (date) => date.getTime());
+
+export const strToDate = (date: string): IO<Option<Date>> =>
+  pipe(
+    () => new Date(date),
+    io.map((date) => (Number.isNaN(date.getTime()) ? option.none : option.some(date))),
+  );
 
 export const addYears = (n: number) => (date: IO<Date>) =>
   pipe(
