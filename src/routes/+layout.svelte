@@ -55,12 +55,14 @@
 
       console.log('GOTO IN storageLast');
       await goto(`/${appModule.id}`);
+
+      sasIdInput = [sas.id, sas.name];
     }
   });
 </script>
 
 <Sidebar>
-  <ul role="list" class="flex flex-1 flex-col gap-y-5">
+  <ul role="list" class="flex flex-1 flex-col gap-y-6">
     {#await getSASes()}
       <Loader />
     {:then sases}
@@ -93,7 +95,7 @@
 
     {#if option.isSome(sasId)}
       <li>
-        <div class="text-sm font-semibold leading-6 text-csas-100 uppercase">App modules</div>
+        <div class="text-xs font-semibold leading-6 text-csas-100 uppercase">App modules</div>
         <ul role="list" class="-mx-2 mt-2 space-y-1">
           {#each appModules as module (module.id)}
             <li>
@@ -126,7 +128,7 @@
     {/if}
     {#if favs.length !== 0}
       <li class="mt-auto pt-2 border-t border-csas-400">
-        <div class="text-sm font-semibold leading-6 text-csas-100 uppercase">Favorites</div>
+        <div class="text-xs font-semibold leading-6 text-csas-100 uppercase">Favorites</div>
         <ul role="list" class="-mx-2 mt-2 space-y-1">
           {#each favs as [sas, appModule]}
             <li>
@@ -162,7 +164,7 @@
   </ul>
 </Sidebar>
 
-<section class="py-10 lg:pl-72">
+<section class="py-6 lg:pl-72">
   <div class="px-4 sm:px-6 lg:px-8">
     <slot />
   </div>

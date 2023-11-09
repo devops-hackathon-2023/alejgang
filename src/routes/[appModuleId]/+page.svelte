@@ -16,7 +16,12 @@
   import { weightedAverage } from '$lib/math';
   import { classNames } from '$lib/string';
   import { selectOptions } from '$lib/util';
-  import { Disclosure, DisclosureButton, DisclosurePanel } from '@rgossiaux/svelte-headlessui';
+  import {
+    Disclosure,
+    DisclosureButton,
+    DisclosurePanel,
+    Transition
+  } from '@rgossiaux/svelte-headlessui';
   import { either, option, record } from 'fp-ts';
   import {
     AlertTriangle,
@@ -75,7 +80,7 @@
   });
 </script>
 
-<a class="flex gap-1 items-center" href="{base}/{data.appModule.id}">
+<a class="flex gap-1 items-center mb-2" href="{base}/{data.appModule.id}">
   <span class="text-sm">{data.sas.name}</span>
   <ChevronRight size={12} />
 </a>
@@ -86,20 +91,22 @@
   <Clickable on:click={toggleFavorites}>
     <Star fill={isInFavorites ? '#ffbf00' : '#fff'} color={isInFavorites ? '#ffbf00' : '#222'} />
   </Clickable>
-  <Copy prefix="id: " text={data.appModule.id} truncate />
+  <Copy prefix="" text={data.appModule.id} truncate />
 </div>
 <div class="grid xl:grid-cols-2 gap-4 items-start">
   {#each data.units as unit}
     <DeploymentUnitCard repo={unit.repositoryUrl} id={unit.id}>
       <svelte:fragment slot="name">{unit.name}</svelte:fragment>
       {#await getDeploymentsWithVersionsGroupedByEnv(unit.id)()}
-        <LoaderCloud size={128} />
+        <div class="p-6">
+          <LoaderCloud size={64} />
+        </div>
       {:then deploymentGroups}
         {#if either.isLeft(deploymentGroups)}
           Error: {deploymentGroups.left.message}
         {:else}
-          <div class="flex justify-between items-center border-t pt-2 gap-2">
-            <h3 class="font-light">Environments:</h3>
+          <div class="flex justify-between items-center border-t pt-3 pb-2 gap-2">
+            <h3 class="font-medium text-md mr-2">Environments</h3>
             <div class="ml-auto mr-0">
               <Select
                 bind:value={sortBy}
@@ -181,7 +188,8 @@
                 <span class="text-right">
                   {new Date(deployment.finishedAt.value).toLocaleString('cs-CZ', {
                     timeZone: 'CET',
-                    timeStyle: 'short'
+                    timeStyle: 'short',
+                    hour12: false
                   })}
                 </span>
                 <span class="text-right">
@@ -214,12 +222,18 @@
               >
                 {deployment.status}
               </span>
+            {:else}
+              <div class="col-span-7 pt-2">
+                <p class="text-center text-sm text-black/80">
+                  No deployments for the selected version/timespan.
+                </p>
+              </div>
             {/each}
           </div>
-          <div class="flex justify-end pt-1">
+          <div class="flex justify-end">
             <a
               href="{base}/{data.appModule.id}/{unit.id}"
-              class="p-2 pl-3 pr-3 rounded-lg bg-csas-600 text-csas-50"
+              class="py-2 text-sm rounded-lg text-csas-600 underline"
             >
               Show More...
             </a>
@@ -228,49 +242,61 @@
           {#await getDeploymentsGroupedByDeployer(unit.id)() then deployments}
             {#if either.isRight(deployments)}
               {@const deploys = record.toEntries(deployments.right)}
-              <Disclosure let:open class="mt-4">
+
+              <hr />
+
+              <Disclosure let:open class="mt-2">
                 <DisclosureButton class="flex justify-between items-center w-full">
                   <h3 class="font-medium text-md mr-2">Health scores</h3>
 
                   <ChevronRightIcon style={open ? 'transform: rotate(90deg);' : ''} />
                 </DisclosureButton>
 
-                <DisclosurePanel class="mt-2">
-                  <div class="grid grid-cols-[_1fr, _1fr] gap-2 gap-x-10">
-                    <div class="mb-2 flex justify-between items-center col-span-2">
-                      <span class="text-xs font-medium opacity-50"
-                        >Scale 0 to 100, higher means better chance of succeeding pipelines in the
-                        future</span
-                      >
-                    </div>
-                    {#each deploys as [deployer, deployment]}
-                      {@const score = Math.ceil(
-                        weightedAverage(
-                          deployment.map(($) => ({
-                            date: new Date($.startedAt),
-                            value: $.status === DeploymentResponse.status.SUCCESS ? 1 : 0
-                          }))
-                        ) * 100
-                      )}
-
-                      <div class="flex justify-between items-center">
-                        <p>{deployer}</p>
-                        <p
-                          class={classNames(
-                            score >= 75
-                              ? 'text-green-500'
-                              : score >= 50
-                              ? 'text-orange-400'
-                              : 'text-red-500',
-                            'text-lg font-semibold'
-                          )}
+                <Transition
+                  enter="transition duration-100 ease-out"
+                  enterFrom="transform scale-95 opacity-0"
+                  enterTo="transform scale-100 opacity-100"
+                  leave="transition duration-75 ease-out"
+                  leaveFrom="transform scale-100 opacity-100"
+                  leaveTo="transform scale-95 opacity-0"
+                >
+                  <DisclosurePanel class="mt-2">
+                    <div class="grid grid-cols-[_1fr, _1fr] gap-2 gap-x-10">
+                      <div class="mb-2 flex justify-between items-center col-span-2">
+                        <span class="text-xs font-medium opacity-50"
+                          >Scale 0 to 100, higher means better chance of succeeding pipelines in the
+                          future</span
                         >
-                          {score}
-                        </p>
                       </div>
-                    {/each}
-                  </div>
-                </DisclosurePanel>
+                      {#each deploys as [deployer, deployment]}
+                        {@const score = Math.ceil(
+                          weightedAverage(
+                            deployment.map(($) => ({
+                              date: new Date($.startedAt),
+                              value: $.status === DeploymentResponse.status.SUCCESS ? 1 : 0
+                            }))
+                          ) * 100
+                        )}
+
+                        <div class="flex justify-between items-center">
+                          <p>{deployer}</p>
+                          <p
+                            class={classNames(
+                              score >= 75
+                                ? 'text-green-500'
+                                : score >= 50
+                                ? 'text-orange-400'
+                                : 'text-red-500',
+                              'text-lg font-semibold'
+                            )}
+                          >
+                            {score}
+                          </p>
+                        </div>
+                      {/each}
+                    </div>
+                  </DisclosurePanel>
+                </Transition>
               </Disclosure>
             {/if}
           {/await}

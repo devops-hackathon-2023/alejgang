@@ -12,7 +12,7 @@
 </script>
 
 <button
-  class="font-mono text-xs flex gap-2 border border-solid border-transparent hover:border-csas-200 rounded-lg transition p-2 min-w-0 max-w-full"
+  class="font-mono text-[10px] flex gap-2 border border-solid border-transparent hover:border-csas-200 rounded-lg transition p-2 min-w-0 max-w-full items-center"
   on:click={() => {
     copy(text ?? '');
     copied = true;
@@ -25,8 +25,8 @@
     {prefix ?? ''}{text}{suffix ?? ''}
   </p>
   {#if copied}
-    <Check size={16} />
+    <Check size={14} />
   {:else}
-    <Copy size={16} />
+    <Copy size={14} />
   {/if}
 </button>

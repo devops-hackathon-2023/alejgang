@@ -27,7 +27,7 @@
   let versionInput: [string, string] | null = null;
 </script>
 
-<a class="flex gap-1 items-center" href="{base}/{data.appModule.id}">
+<a class="flex gap-1 items-center mb-2" href="{base}/{data.appModule.id}">
   <span class="text-sm">{data.sas.name}</span>
   <ChevronRight size={12} />
   <span class="text-sm">{data.appModule.name}</span>
@@ -37,7 +37,7 @@
   <h1 class="text-2xl">
     {unit.name}{#if versionInput === null}@latest{:else}@{versionInput[1]}{/if}
   </h1>
-  <Copy prefix="id: " text={unit.id} truncate />
+  <Copy prefix="" text={unit.id} truncate />
   {#await getUnitVersions(unit.id)() then versions}
     {#if either.isRight(versions)}
       <div class="flex items-center gap-2 mr-0 ml-auto">
@@ -63,7 +63,9 @@
   {/await}
 </div>
 {#await getDeploymentsWithVersionsGroupedByEnv(unit.id)()}
-  <LoaderCloud size={128} />
+  <div class="p-6">
+    <LoaderCloud size={64} />
+  </div>
 {:then deploymentGroups}
   {#if either.isLeft(deploymentGroups)}
     Error: {deploymentGroups.left.message}
