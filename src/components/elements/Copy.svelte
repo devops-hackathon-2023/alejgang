@@ -22,7 +22,12 @@
   }}
 >
   <p class:truncate>
-    {prefix ?? ''}{text}{suffix ?? ''}
+    <span class="relative">
+      {prefix ?? ''}{text}{suffix ?? ''}
+      {#if copied}
+        <span class="absolute left-0 w-full text-left bg-white">Copied!</span>
+      {/if}
+    </span>
   </p>
   {#if copied}
     <Check size={14} />
