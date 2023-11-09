@@ -56,6 +56,9 @@
 
   let versionInput: [string, string] | null = null;
   let sortBy: [string, string] | null = ['', 'Default'];
+
+  let secondsFromLoad = 0;
+  setInterval(() => secondsFromLoad++, 1000);
 </script>
 
 <a class="flex gap-1 items-center" href="{base}/{data.appModule.id}">
@@ -118,7 +121,7 @@
               {/if}
             {/await}
           </div>
-          <div class="grid grid-cols-[20px,_1fr,_64px,_auto,_auto,_100px,_auto] gap-2 items-center">
+          <div class="grid grid-cols-[20px,_1fr,_64px,_auto,_auto,_110px,_auto] gap-2 items-center">
             {#each Object.entries(deploymentGroups.right)
               .sort((a, b) => {
                 const desc = /desc/i.test(sortBy?.[0] ?? '') ? 1 : -1;
@@ -151,11 +154,13 @@
               <span class="font-bold">
                 {deployment.environment}:
               </span>
-              {#if deployment.version}
-                <span class="border rounded-lg p-1 pl-2 pr-2 font-mono text-sm text-center">
-                  {deployment.version?.version}
-                </span>
-              {/if}
+              <span>
+                {#if deployment.version}
+                  <span class="border rounded-lg p-1 pl-2 pr-2 font-mono text-sm text-center">
+                    {deployment.version?.version}
+                  </span>
+                {/if}
+              </span>
               {#if option.isSome(deployment.finishedAt)}
                 <span class="text-right">
                   {new Date(deployment.finishedAt.value).toLocaleString('cs-CZ', {
@@ -169,13 +174,24 @@
                     dateStyle: 'short'
                   })}
                 </span>
+              {:else}
+                <span /><span />
               {/if}
-              {#if option.isSome(deployment.duration)}
-                <span class="border rounded-lg p-1 pl-2 pr-2 flex items-center gap-2">
+              <span class="border rounded-lg p-1 pl-2 pr-2 flex items-center gap-2">
+                {#if option.isSome(deployment.duration)}
                   <Timer size={16} />
                   {secondsToHMS(deployment.duration.value)}
-                </span>
-              {/if}
+                {:else}
+                  <div class="rotate">
+                    <Hourglass size={16} />
+                  </div>
+                  {secondsToHMS(
+                    Math.floor(
+                      (new Date().getTime() - new Date(deployment.startedAt).getTime()) / 1000
+                    ) + secondsFromLoad
+                  )}
+                {/if}
+              </span>
               <span
                 class="p-1 pl-2 pr-2 bg-status flex-inline mr-0 ml-auto"
                 class:text-status-fail={failed}
@@ -199,3 +215,17 @@
     </DeploymentUnitCard>
   {/each}
 </div>
+
+<style lang="scss">
+  .rotate {
+    animation: rotate 4s linear 0ms infinite normal forwards;
+  }
+  @keyframes rotate {
+    from {
+      rotate: 0deg;
+    }
+    to {
+      rotate: 360deg;
+    }
+  }
+</style>

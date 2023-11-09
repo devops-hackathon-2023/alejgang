@@ -1,6 +1,6 @@
 import { dateToStr, subYears } from '$lib/date';
 import { optionEqString } from '$lib/eq';
-import { console, date, either, io, option, taskEither } from 'fp-ts';
+import { array, console, date, either, io, option, taskEither } from 'fp-ts';
 import { groupBy } from 'fp-ts/lib/NonEmptyArray';
 
 import type { Option } from 'fp-ts/lib/Option';
@@ -15,6 +15,7 @@ import {
   SaSesService,
   StartDeploymentRequest,
 } from './client';
+import { getRunning } from '$lib/pipeline';
 
 OpenAPI.USERNAME = 'dopo';
 OpenAPI.PASSWORD = 'DevOps2023';
@@ -93,6 +94,16 @@ export const getDeployments = (deploymentUnitId: Option<string> = option.none) =
     taskEither.map(($) => $.page),
   );
 
+export const getAllDeployments = (deploymentUnitId: Option<string> = option.none) =>
+  pipe(
+    taskEither.bindTo('id')(taskEither.of(deploymentUnitId)),
+    taskEither.bind('finished', ({ id }) =>
+      pipe(id, getDeployments, taskEither.map(array.map(($) => ({ ...$, remaining: 0 })))),
+    ),
+    taskEither.bind('running', ({ id }) => getRunning(id)),
+    taskEither.map(({ finished, running }) => [...finished, ...running]),
+  );
+
 export const getUnitVersions = (deploymentUnitId: string, page: Option<number> | undefined = undefined) =>
   pipe(
     () =>
@@ -107,8 +118,8 @@ export const getUnitVersions = (deploymentUnitId: string, page: Option<number> |
 export const getDeploymentsWithVersions = (deploymentUnitId: string) =>
   pipe(
     taskEither.Do,
-    taskEither.bind('deployments', () => getDeployments(option.some(deploymentUnitId))),
-    taskEither.bind('versions', () =>
+    taskEither.bindW('deployments', () => getAllDeployments(option.some(deploymentUnitId))),
+    taskEither.bindW('versions', () =>
       pipe(
         getUnitVersions(deploymentUnitId),
         taskEither.map(($) => $.map(($) => [$.id, $] as const)),
