@@ -34,5 +34,5 @@ jobs:
         run: pnpm run build
       - name: Run linter
         run: pnpm run lint
-      - name: Run svelte check
-        run: pnpm run check
+      - name: Run Vitest Unit tests
+        run: pnpm run test
