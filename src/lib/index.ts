@@ -1,8 +1,9 @@
 import { dateToStr, subYears } from '$lib/date';
 import { optionEqString } from '$lib/eq';
-import { array, console, date, either, io, option, taskEither } from 'fp-ts';
+import { console, array, date, either, io, option, taskEither } from 'fp-ts';
 import { groupBy } from 'fp-ts/lib/NonEmptyArray';
 
+import { getRunning } from '$lib/pipeline';
 import type { Option } from 'fp-ts/lib/Option';
 import { pipe } from 'fp-ts/lib/function';
 import {
@@ -15,7 +16,6 @@ import {
   SaSesService,
   StartDeploymentRequest,
 } from './client';
-import { getRunning } from '$lib/pipeline';
 
 OpenAPI.USERNAME = 'dopo';
 OpenAPI.PASSWORD = 'DevOps2023';
