@@ -14,6 +14,7 @@
     AlertTriangle,
     CheckSquare2,
     ChevronRight,
+    ExternalLink,
     FilterX,
     Hourglass,
     Timer
@@ -114,11 +115,17 @@
                   {/if}
                 </div>
                 {#if deployment.version}
-                  <span
-                    class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-100/80"
+                  <a
+                    href={`${unit.repositoryUrl}/commit/${deployment.version.gitCommitHash}`}
+                    target="_blank"
                   >
-                    v{deployment.version?.version}
-                  </span>
+                    <span
+                      class="inline-flex items-center rounded-md bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-100/80"
+                    >
+                      v{deployment.version?.version}
+                      <ExternalLink size={12} class="ml-1" />
+                    </span>
+                  </a>
                 {/if}
                 {#if option.isSome(deployment.finishedAt)}
                   <p class="text-right text-sm flex-1">
