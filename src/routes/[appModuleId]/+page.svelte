@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { base } from '$app/paths';
   import Copy from '$components/elements/Copy.svelte';
   import DeploymentUnitCard from '$components/elements/DeploymentUnitCard.svelte';
+  import LoaderCloud from '$components/elements/LoaderCloud.svelte';
   import Select from '$components/elements/Select.svelte';
   import Clickable from '$components/utils/Clickable.svelte';
   import { getDeploymentsWithVersionsGroupedByEnv, getUnitVersions, sortEnvByEnum } from '$lib';
@@ -8,7 +10,15 @@
   import { secondsToHMS } from '$lib/date';
   import { selectOptions } from '$lib/util';
   import { either, option } from 'fp-ts';
-  import { AlertTriangle, CheckSquare2, FilterX, Hourglass, Star, Timer } from 'lucide-svelte';
+  import {
+    AlertTriangle,
+    CheckSquare2,
+    ChevronRight,
+    FilterX,
+    Hourglass,
+    Star,
+    Timer
+  } from 'lucide-svelte';
   import { favorites } from '../../stores';
   import type { PageData } from './$types';
 
@@ -48,13 +58,17 @@
   let sortBy: [string, string] | null = ['', 'Default'];
 </script>
 
+<a class="flex gap-1 items-center" href="{base}/{data.appModule.id}">
+  <span class="text-sm">{data.sas.name}</span>
+  <ChevronRight size={12} />
+</a>
 <div class="flex items-center mb-4 gap-4">
-  <Clickable on:click={toggleFavorites}>
-    <Star fill={isInFavorites ? '#ffbf00' : '#fff'} color={isInFavorites ? '#ffbf00' : '#222'} />
-  </Clickable>
   <h1 class="text-2xl">
     {data.appModule.name}
   </h1>
+  <Clickable on:click={toggleFavorites}>
+    <Star fill={isInFavorites ? '#ffbf00' : '#fff'} color={isInFavorites ? '#ffbf00' : '#222'} />
+  </Clickable>
   <Copy prefix="id: " text={data.appModule.id} truncate />
 </div>
 <div class="grid xl:grid-cols-2 gap-4">
@@ -62,7 +76,7 @@
     <DeploymentUnitCard repo={unit.repositoryUrl} id={unit.id}>
       <svelte:fragment slot="name">{unit.name}</svelte:fragment>
       {#await getDeploymentsWithVersionsGroupedByEnv(unit.id)()}
-        Loading...
+        <LoaderCloud size={128} />
       {:then deploymentGroups}
         {#if either.isLeft(deploymentGroups)}
           Error: {deploymentGroups.left.message}
@@ -171,6 +185,14 @@
                 {deployment.status}
               </span>
             {/each}
+          </div>
+          <div class="flex justify-end pt-1">
+            <a
+              href="{base}/{data.appModule.id}/{unit.id}"
+              class="p-2 pl-3 pr-3 rounded-lg bg-csas-600 text-csas-50"
+            >
+              Show More
+            </a>
           </div>
         {/if}
       {/await}
