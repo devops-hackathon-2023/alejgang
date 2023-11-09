@@ -98,21 +98,19 @@
             {deploymentGroup.environment}
           </h2>
           <div class="flex flex-col gap-2">
-            {#each deployments as deployment, i}
+            {#each deployments as deployment}
               {@const failed = deployment.status === DeploymentResponse.status.FAILED}
               {@const success = deployment.status === DeploymentResponse.status.SUCCESS}
               <div class="flex items-center gap-2 relative border-t pt-2">
-                {#if !i}
-                  <div class="absolute left-[-26px] bg-white">
-                    {#if failed}
-                      <AlertTriangle color="#e72222" size={20} />
-                    {:else if success}
-                      <CheckSquare2 color="#028661" size={20} />
-                    {:else}
-                      <Hourglass color="#2870ed" size={20} />
-                    {/if}
-                  </div>
-                {/if}
+                <div class="absolute left-[-26px] bg-white">
+                  {#if failed}
+                    <AlertTriangle color="#e72222" size={20} />
+                  {:else if success}
+                    <CheckSquare2 color="#028661" size={20} />
+                  {:else}
+                    <Hourglass color="#2870ed" size={20} />
+                  {/if}
+                </div>
                 {#if deployment.version}
                   <span
                     class="border rounded-lg p-1 pl-2 pr-2 font-mono text-sm text-center block w-19"
